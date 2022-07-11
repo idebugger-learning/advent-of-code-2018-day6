@@ -17,7 +17,7 @@ fn main() {
 
     let finite_points: HashSet<Point> = points
         .difference(&infinite_points)
-        .map(|&point| point)
+        .map(|point| *point)
         .collect();
     println!(
         "Finite points ({}): {:?}",
@@ -27,6 +27,9 @@ fn main() {
 
     let largest_area_size = find_largest_area(&points, &finite_points);
     println!("Largest area size: {}", largest_area_size);
+
+    let distanced_region_size = find_distanced_region(&points, 10000);
+    println!("Distanced region size: {}", distanced_region_size);
 }
 
 fn parse_input(input: &str) -> HashSet<Point> {
@@ -126,4 +129,24 @@ fn find_largest_area(points: &HashSet<Point>, finite_points: &HashSet<Point>) ->
         .into_values()
         .max()
         .expect("Failed to find max")
+}
+
+fn find_distanced_region(points: &HashSet<Point>, max_sum_distance: usize) -> usize {
+    let (min_x, max_x, min_y, max_y) = find_min_max(points);
+
+    let mut region_size = 0;
+
+    for x in min_x..=max_x {
+        for y in min_y..=max_y {
+            let sum_of_distances: isize = points
+                .into_iter()
+                .map(|point| calc_manhattan_distance(point, &(x, y)))
+                .sum();
+            if sum_of_distances < max_sum_distance as isize {
+                region_size += 1;
+            }
+        }
+    }
+
+    region_size
 }
